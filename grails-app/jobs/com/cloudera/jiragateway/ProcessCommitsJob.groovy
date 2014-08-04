@@ -54,6 +54,7 @@ class ProcessCommitsJob {
         log.warn("Processing JIRAs for commit ${commit.shortHash()}")
         commit.jiras.each { j ->
           if (!j.processed && j.attempts < 3) {
+            j.attempts += 1
             log.warn("Commenting on JIRA ${j.issueId}...")
             try {
               def jsonBody = ["body": commentBody(commit)]
@@ -66,14 +67,13 @@ class ProcessCommitsJob {
                   log.warn("Successfully commented on ${j.issueId}")
                 }
                 response.failure = { HttpResponseDecorator resp, json ->
-                  log.error("Response error: ${resp.allHeaders} - ${json}")
-                  j.attempts += 1
+                  log.error("Response error: ${resp.allHeaders} - ${json} - will retry if ${j.attempts} < 3")
                   j.save()
                 }
               }
             } catch (Exception e) {
               log.error("Error when updating jira ${j.issueId}: ${getFullStackTrace(e)}")
-              j.attempts += 1
+              log.error("Will retry if ${j.attempts} < 3")
               j.save()
             }
           }
