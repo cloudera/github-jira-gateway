@@ -1,12 +1,27 @@
 # GitHub/JIRA Gateway
 
+## WARNING!
+
+So yeah, this isn't yet at all secure. You probably shouldn't be
+running it. You definitely shouldn't be running it anywhere accessible
+from the outside world - though, of course, its entire point is to run
+inside your firewall alongside GitHub Enterprise while your JIRA
+instance is in the outside world, so, yeah. 
+
 ## What is this thing here?
 
-This is a service designed to be run somewhere and used as the
-endpoint for GitHub Enterprise webhook push notifications to hit. It
+This is a service designed to be run somewhere within your firewall
+and used as the endpoint for GitHub Enterprise webhook push notifications to hit. It
 takes the information from the push notifications, extracts relevant
 JIRAs from the first line of the commit messages, and adds comments to
 those JIRAs on your specified JIRA host.
+
+## Why not the JIRA DVCS Connector?
+
+Because the JIRA DVCS connector needs to be able to talk to GitHub
+Enterprise directly, and that doesn't work if you're using a hosted
+JIRA setup and running GitHub Enterprise behind the firewall. This
+sits within your firewall, listens to GitHub and then talks to JIRA. 
 
 ## How do I set it up?
 
@@ -106,5 +121,11 @@ The default template is as follows:
 
 ## Any gotchas?
 
-A given git hash will only be processed once - if it shows up as part
+* A given git hash will only be processed once - if it shows up as part
 of pushing another branch in the future, it will be ignored.
+* Only JIRA issues seen in the first line of the commit message will
+be used.
+
+## TODO
+
+* Actually lock things down a bit - some level of security would be nice.
