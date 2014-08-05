@@ -26,6 +26,8 @@ class IncomingCommitController {
 
   static allowedMethods = [save: ["POST", "GET"], update: ["POST", "GET"], delete: ["POST", "GET"], destroy: ["POST", "GET"]]
 
+  def configService
+
   def index() { }
 
   def save() {
@@ -74,7 +76,7 @@ class IncomingCommitController {
   }
 
   private findJiras(String message) {
-    def jiraProjects = GatewayConfig.get(1).jiraProjects.replaceAll(",", "|")
+    def jiraProjects = configService.jiraProjects.join("|")
 
     def p = ~/\b((?:${jiraProjects})-\d+)/
 

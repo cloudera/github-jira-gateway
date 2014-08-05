@@ -55,6 +55,7 @@ grails.project.dependency.resolution = {
     compile "org.codehaus.groovy.modules.http-builder:http-builder:0.6"
     runtime 'mysql:mysql-connector-java:5.1.21'
     test "org.grails:grails-datastore-test-support:1.0-grails-2.4"
+    test 'cglib:cglib-nodep:2.2.2'
     // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
     // runtime 'mysql:mysql-connector-java:5.1.20'
@@ -80,5 +81,6 @@ grails.project.dependency.resolution = {
     //compile ":less-asset-pipeline:1.10.0"
     //compile ":coffee-asset-pipeline:1.8.0"
     //compile ":handlebars-asset-pipeline:1.3.0.3"
+
   }
 }

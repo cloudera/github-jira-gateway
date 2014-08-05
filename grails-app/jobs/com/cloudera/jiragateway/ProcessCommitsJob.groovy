@@ -21,7 +21,6 @@ import static groovyx.net.http.ContentType.JSON
 import static groovyx.net.http.Method.POST
 import static org.apache.commons.lang.exception.ExceptionUtils.getFullStackTrace
 
-import groovy.text.SimpleTemplateEngine
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseDecorator
 import org.apache.commons.logging.LogFactory
@@ -33,6 +32,8 @@ import org.apache.http.protocol.HttpContext
 
 class ProcessCommitsJob {
   private static final log = LogFactory.getLog(this)
+
+  def configService
 
   def concurrent = false
 
@@ -89,18 +90,16 @@ class ProcessCommitsJob {
     }
   }
   private commentBody(IncomingCommit commit) {
-    GatewayConfig config = GatewayConfig.get(1)
-    return new SimpleTemplateEngine().createTemplate(config.commentTemplate).make(commit: commit).toString()
+    return configService.commentTemplate.make(commit: commit).toString()
   }
 
   private getHttp() {
-    GatewayConfig config = GatewayConfig.get(1)
-    def url = "${config.jiraHost}/"
+    def url = "${configService.jiraRootUrl}/"
 
     def http = new HTTPBuilder(url)
     http.client.addRequestInterceptor(new HttpRequestInterceptor() {
       void process(HttpRequest httpRequest, HttpContext httpContext) {
-        httpRequest.addHeader('Authorization', 'Basic ' + "${config.jiraUsername}:${config.jiraPassword}".toString().bytes.encodeBase64().toString())
+        httpRequest.addHeader('Authorization', 'Basic ' + "${configService.jiraUsername}:${configService.jiraPassword}".toString().bytes.encodeBase64().toString())
       }
     })
     http.client.setRedirectStrategy(new DefaultRedirectStrategy() {

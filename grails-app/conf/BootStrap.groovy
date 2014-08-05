@@ -16,29 +16,10 @@
  * limitations under the License.
  */
 
-import com.cloudera.jiragateway.GatewayConfig
 
 class BootStrap {
 
     def init = { servletContext ->
-      if (!GatewayConfig.count() || GatewayConfig.count() == 0) {
-        GatewayConfig config = new GatewayConfig(jiraProjects: "FIRSTPROJECT,SECONDPROJECT",
-                jiraHost: "https://jira.somedomain.com",
-                jiraUsername: "username",
-                jiraPassword: 'password')
-        config.commentTemplate = '''\
-Commit for this issue with hash ${commit.shortHash()} made to ${commit.branch} in ${commit.organization}/${commit.repository}
-Committer is ${commit.committer}, commit details [here|${commit.repoUrl}/commit/${commit.gitHash}]
-'''
-
-        if (config.validate()) {
-          config.save()
-        } else {
-          config.errors.allErrors.each { error ->
-            println("config error: ${error}")
-          }
-        }
-      }
     }
     def destroy = {
     }

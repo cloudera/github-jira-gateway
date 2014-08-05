@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+import org.apache.log4j.DailyRollingFileAppender
+
 // locations to search for config files that get merged into the main config;
 // config files can be ConfigSlurper scripts, Java properties files, or classes
 // in the classpath in ConfigSlurper format
@@ -89,23 +91,64 @@ environments {
 
 // log4j configuration
 log4j = {
-    // Example of changing the log pattern for the default console appender:
-    //
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
 
-    debug 'com.cloudera.jiragateway'
+  appenders {
+    def catalinaBase = System.properties.getProperty('catalina.base') ?: '.'
+    def logDirectory = "${catalinaBase}/logs"
 
-    error  'org.codehaus.groovy.grails.web.servlet',        // controllers
-           'org.codehaus.groovy.grails.web.pages',          // GSP
-           'org.codehaus.groovy.grails.web.sitemesh',       // layouts
-           'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-           'org.codehaus.groovy.grails.web.mapping',        // URL mapping
-           'org.codehaus.groovy.grails.commons',            // core / classloading
-           'org.codehaus.groovy.grails.plugins',            // plugins
-           'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
-           'org.springframework',
-           'org.hibernate',
-           'net.sf.ehcache.hibernate'
+    appender new DailyRollingFileAppender(
+            name: 'gatewayrolling',
+            file: "${logDirectory}/gateway.log",
+            layout: pattern(conversionPattern: '[%d{ISO8601}] [%t] %c{4}    %m%n'),
+            datePattern: "'.'yyyy-MM-dd")
+
+    rollingFile name: "stacktrace", maxFileSize: 1024,
+            file: "${logDirectory}/stacktrace.log"
+  }
+
+  root {
+    info 'gatewayrolling'
+  }
+
+  // Set level for all application artifacts
+  info 'grails.app', 'com.cloudera.jiragateway', 'grails.app.taglib', 'grails.app.controller'
+
+  warn 'org.codehaus.groovy.grails'
+
+  // Set this to debug to watch the XML communications to and from Amazon
+  error 'org.apache.http.wire'
+
+  // Suppress most noise from libraries
+  error 'grails.spring', 'net.sf.ehcache', 'org.springframework', 'org.hibernate',
+          'org.apache.catalina', 'org.apache.commons', 'org.apache.coyote', 'org.apache.http.client.protocol',
+          'org.apache.jasper', 'org.apache.tomcat', 'org.codehaus.groovy.grails'
+
+  environments {
+    def devConfig = {
+      console name: 'stdout', layout: pattern(conversionPattern: '[%d{ISO8601}] %c{4}    %m%n')
+      root {
+        info 'stdout'
+      }
+    }
+    development devConfig
+  }
 }
+
+gatewayHome = System.getenv('GH_JIRA_GW_HOME') ?: System.getProperty('GH_JIRA_GW_HOME') ?:
+        "${System.getProperty('user.home')}/.gh_jira_gw"
+
+println "Using ${gatewayHome} as GH_JIRA_GW_HOME"
+
+appConfigured = new File(gatewayHome, 'Config.groovy').exists()
+
+// Locations to search for config files that get merged into the main config.
+// Config files can either be Java properties files or ConfigSlurper scripts.
+grails.config.locations = [
+        "file:${gatewayHome}/Config.groovy",
+        'classpath:sourceVersion.properties'
+]
+
+defaultCommentTemplate = '''\
+Commit for this issue with hash ${commit.shortHash()} made to ${commit.branch} in ${commit.organization}/${commit.repository}
+0Committer is ${commit.committer}, commit details [here|${commit.repoUrl}/commit/${commit.gitHash}]
+'''

@@ -16,23 +16,25 @@
  * limitations under the License.
  */
 
-package com.cloudera.jiragateway
+package com.cloudera.jiragateway.mock
 
-class GatewayConfig {
-  String jiraProjects = "CDH,KITCHEN,OPSAPS"
-  String jiraHost
-  String jiraUsername
-  String jiraPassword
-  String commentTemplate = '''\
-Commit for this issue with hash ${commit.shortHash()} made to ${commit.branch} in ${commit.organization}/${commit.repository}
-Committer is ${commit.committer}, commit details [here|${commit.repoUrl}/commit/${commit.gitHash}]
-'''
 
-  static constraints = {
-    jiraProjects()
-    jiraHost()
-    jiraUsername()
-    jiraPassword()
-    commentTemplate()
+class Mocks {
+  private static grailsApplication
+  static grailsApplication() {
+    if (grailsApplication == null) {
+      grailsApplication = [
+              config: [
+                      jiraRootUrl: "http://foo.foo",
+                      jiraUsername: "username",
+                      jiraPassword: "password",
+                      jiraProjects: "PROJ1,PROJ2, KITCHEN",
+                      gatewayHome: "gatewayHomeDir",
+                      commentTemplate: "nothing"
+              ],
+              metadata: [:]
+      ]
+    }
+    grailsApplication
   }
 }
