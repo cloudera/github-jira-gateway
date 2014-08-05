@@ -134,3 +134,8 @@ config, then fill out this form" config page.
 ** And a way to update the config afterwards.
 * Add some historical information/reporting on what was done when that
 can be accessed through the UI.
+* Make sure that the IncomingCommit controller returns JSON whenever
+it's called on the save method, even if it throws an exception
+somewhere along the line.
+* Move GatewayConfig from the DB to a config groovy file, with a
+service providing read/write - a la Asgard.
