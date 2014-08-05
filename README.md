@@ -129,3 +129,8 @@ be used.
 ## TODO
 
 * Actually lock things down a bit - some level of security would be nice.
+* Move from pre-configuring in BootStrap.groovy (dumb!) to a "if no
+config, then fill out this form" config page.
+** And a way to update the config afterwards.
+* Add some historical information/reporting on what was done when that
+can be accessed through the UI.
